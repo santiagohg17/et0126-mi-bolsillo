@@ -195,6 +195,8 @@ class _HomeScreenState extends State<HomeScreen> {
       mensaje = '¡Te pasaste del presupuesto!';
     } else if (_gastos.isEmpty) {
       mensaje = 'Aún no tienes gastos este mes';
+    } else if (dias >= 31) {
+      mensaje = 'A este ritmo te alcanza para todo el mes';
     } else {
       mensaje = 'A este ritmo te alcanza para $dias días';
     }
