@@ -1,30 +1,32 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:mi_bolsillo/main.dart';
+import 'package:mi_bolsillo/models/gasto.dart';
+import 'package:mi_bolsillo/services/gastos_service.dart';
+import 'package:mi_bolsillo/services/validaciones.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('formatearPesos pone los puntos de miles', () {
+    expect(formatearPesos(12500), '\$12.500');
+    expect(formatearPesos(300000), '\$300.000');
+    expect(formatearPesos(800), '\$800');
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('validarValor rechaza valores vacios, negativos o con letras', () {
+    expect(validarValor(''), isNotNull);
+    expect(validarValor('abc'), isNotNull);
+    expect(validarValor('-5'), isNotNull);
+    expect(validarValor('12.500'), isNull);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('el resumen por categoria suma bien y el Set no repite', () {
+    final servicio = GastosService();
+    final gastos = [
+      Gasto(id: '1', descripcion: 'Almuerzo', valor: 12000, categoria: 'Comida', fecha: DateTime.now()),
+      Gasto(id: '2', descripcion: 'Tinto', valor: 2000, categoria: 'Comida', fecha: DateTime.now()),
+      Gasto(id: '3', descripcion: 'Pasaje', valor: 3200, categoria: 'Transporte', fecha: DateTime.now()),
+    ];
+    expect(servicio.resumenPorCategoria(gastos)['Comida'], 14000);
+    expect(servicio.categoriasUsadas(gastos).length, 2);
+    expect(servicio.diasQueAlcanza(10000, 3000), 3);
   });
 }
