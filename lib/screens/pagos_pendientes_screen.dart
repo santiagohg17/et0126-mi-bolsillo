@@ -193,7 +193,7 @@ class _PagosPendientesScreenState extends State<PagosPendientesScreen> {
                 _categoria = valor;
               });
             },
-            validator: categoriaPagoValidator.call,
+            validator: validarCategoriaPago,
           ),
           const SizedBox(height: 12),
           TextFormField(

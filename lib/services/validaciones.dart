@@ -47,6 +47,12 @@ final valorPagoValidator = MultiValidator([
 
 final categoriaPagoValidator = RequiredValidator(errorText: 'Escoge una categoria.');
 
+// La lista de categorias manda null si no se ha escogido nada,
+// y RequiredValidator no acepta null, entonces le paso '' en ese caso
+String? validarCategoriaPago(String? categoria) {
+  return categoriaPagoValidator(categoria ?? '');
+}
+
 // Regla propia del dominio: el valor tiene que ser mayor a 0
 String? validarValorPago(String? texto) {
   // primero reviso con los validadores de la libreria

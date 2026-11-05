@@ -17,6 +17,11 @@ void main() {
     expect(validarValorPago('25000'), isNull);
   });
 
+  test('la categoria es obligatoria (aunque llegue null)', () {
+    expect(validarCategoriaPago(null), isNotNull);
+    expect(validarCategoriaPago('Estudio'), isNull);
+  });
+
   test('la fecha limite no puede ser antes de hoy', () {
     final ayer = DateTime.now().subtract(const Duration(days: 1));
     expect(validarFechaLimite(null), isNotNull);
