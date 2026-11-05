@@ -97,13 +97,13 @@ class _PagosPendientesScreenState extends State<PagosPendientesScreen> {
       if (!mounted) return;
 
       // 5. Salio bien: actualizo la lista, aviso y limpio el formulario
+      // (la categoria la dejo igual porque muchas veces se repite)
       setState(() {
         _pagos = pagos;
         _descripcionController.clear();
         _valorController.clear();
         _fechaController.clear();
         _fechaLimite = null;
-        _categoria = null;
       });
       _mostrarMensaje('Pago "${nuevo.descripcion}" registrado ✔', Colors.green);
     } on StateError catch (error) {
