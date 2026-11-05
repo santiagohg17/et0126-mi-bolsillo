@@ -122,4 +122,4 @@ En `test/widget_test.dart` hay pruebas sencillas del formato de pesos, las valid
 
 ## Uso de inteligencia artificial
 
-Si utilice una herramienta de IA (Claude) como apoyo. Me ayudó a organizar la estructura de carpetas, a revisar la lógica del `CustomPainter` para dibujar el arco del anillo y a corregir errores. La idea de la app, las decisiones (usar SharedPreferences, las categorias, el uso del while para los dias) y la revisión del código son mias y puedo explicar y modificar cualquier parte.
+Si utilice una herramienta de IA (Claude). Me ayudó a escoger la idea, a armar la estructura de carpetas y a escribir gran parte del código de esta primera versión (el modelo, el servicio con SharedPreferences, las pantallas y el `CustomPainter` del anillo), ademas del README. Yo revisé el código linea por linea, lo ejecuté y probé el recorrido, y lo estudié para poder explicarlo y modificarlo en vivo.
