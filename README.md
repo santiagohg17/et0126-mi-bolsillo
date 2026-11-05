@@ -2,6 +2,10 @@
 
 App movil hecha en Flutter para el curso **ET0126 · Programación de Dispositivos Móviles** de la I.U. Pascual Bravo.
 
+**Entregas en este repositorio:**
+- **Taller Flutter 1** (inicio de la app): ver el tag [`taller-1`](../../tree/taller-1).
+- **Taller de continuación** (formularios y servicio en memoria): ver la sección [Taller de continuación](#taller-de-continuación-pagos-pendientes) y el tag [`taller-2`](../../tree/taller-2).
+
 ## Propuesta de la app
 
 Mi app se llama **Mi Bolsillo**. Está dirigida a **estudiantes universitarios que manejan poca plata al mes** (lo que les dan en la casa o lo que ganan en un trabajo de medio tiempo), quien necesita **saber en que se le va el dinero y no quedarse sin plata antes de que termine el mes**. La app le ayudará a **controlar sus gastos y no pasarse de su presupuesto** mediante **el registro de cada gasto con su categoria, una lista con todos los gastos y un anillo dibujado que muestra cuanto del presupuesto ya se gastó**.
@@ -123,3 +127,68 @@ En `test/widget_test.dart` hay pruebas sencillas del formato de pesos, las valid
 ## Uso de inteligencia artificial
 
 Si utilice una herramienta de IA (Claude). Me ayudó a escoger la idea, a armar la estructura de carpetas y a escribir gran parte del código de esta primera versión (el modelo, el servicio con SharedPreferences, las pantallas y el `CustomPainter` del anillo), ademas del README. Yo revisé el código linea por linea, lo ejecuté y probé el recorrido, y lo estudié para poder explicarlo y modificarlo en vivo.
+
+---
+
+# Taller de continuación: pagos pendientes
+
+## ¿Para qué sirve este flujo?
+
+Sigue siendo la misma app Mi Bolsillo. Ademas de los gastos que ya hice, un estudiante muchas veces tiene **pagos que vienen** y que se le olvidan: la matricula, las copias de un parcial, una salida de campo. Si los anota antes, puede guardar esa plata y no quedarse corto. Por eso agregue la pantalla **Pagos pendientes**, que se abre con el botón naranja de la pantalla principal.
+
+## Campos y validaciones
+
+| Campo | Control | Validación |
+|---|---|---|
+| ¿Qué tienes que pagar? | Texto | `MultiValidator` con `RequiredValidator`, `MinLengthValidator(3)` y `MaxLengthValidator(40)` |
+| Valor | Número | `MultiValidator` con `RequiredValidator` y `PatternValidator` (solo números) + **regla propia**: debe ser mayor a 0 |
+| Categoria | Lista desplegable | `RequiredValidator` (obligatorio escoger una) |
+| Fecha limite | Selector de fecha | **Regla propia**: obligatoria y **no puede ser anterior a hoy** |
+
+Todas las reglas estan en `lib/services/validaciones.dart`. El botón Guardar llama a `_formKey.currentState!.validate()` y si algo esta mal **no se llama al servicio**.
+
+## Modelo y servicio
+
+- **Modelo** `lib/models/pago_pendiente.dart`: clase `PagoPendiente` con `id`, `descripcion`, `valor`, `categoria` y `fechaLimite`, todos con tipo. Tiene los metodos `diasQueFaltan()`, `esIgualA()`, `valorEnPesos()` y `fechaCorta()`.
+- **Servicio** `lib/services/pagos_service.dart`: simula una API.
+  - `listar()` espera 500 ms con `Future.delayed` y devuelve una lista que no se puede modificar.
+  - `crear()` espera 1,2 segundos, revisa la regla de negocio y guarda el pago.
+  - La lista `_pagos` es **privada**, la pantalla no la puede cambiar directamente.
+- **Regla de negocio:** no se puede registrar dos veces el mismo pago (misma descripción, sin importar mayusculas, y misma fecha limite). Si pasa, el servicio lanza un `StateError` y la pantalla muestra el mensaje en rojo sin perder lo escrito.
+- **Pantalla** `lib/screens/pagos_pendientes_screen.dart` (StatefulWidget): tiene la `GlobalKey<FormState>`, los controladores, la lista y las banderas `_cargandoLista` y `_guardando`. La lista se pide en `initState()`, el guardado usa `try / on StateError / finally` y se revisa `mounted` despues de cada `await`. Los controladores se liberan en `dispose()`.
+- **Widget** `lib/widgets/pago_card.dart` (StatelessWidget): solo muestra un pago.
+
+## Límite de los datos en memoria
+
+Los **pagos pendientes son temporales**: viven en una lista en la memoria de la app, entonces **al cerrar y abrir la app se borran**. Esto es a proposito porque el servicio solo simula una API, no es una base de datos.
+Los **gastos y el presupuesto** del Taller 1 **siguen guardados con SharedPreferences** y no se pierden.
+
+## Pruebas manuales
+
+Las hice en el navegador (Chrome) con tamaño de celular:
+
+| Caso | Acción | Resultado |
+|---|---|---|
+| Campos vacíos | Toqué Guardar sin escribir | ✅ Salen los 4 errores y no se agrega nada |
+| Texto muy corto | Escribí "ab" | ✅ Sale "Usa al menos 3 letras." |
+| Regla de dominio | Valor 0 y fecha del 2/11/2026 (ya paso) | ✅ Salen "El valor debe ser mayor a 0." y "La fecha no puede ser anterior a hoy." |
+| Registro válido | Matricula, 450000, Estudio, 20/11/2026 | ✅ El botón cambia a "Guardando...", sale la barra de progreso, luego el mensaje verde y el pago en la lista |
+| Error de negocio | Volví a guardar "matricula" con la misma fecha | ✅ Sale en rojo "Ya tienes "matricula" para esa fecha." y no se duplica; lo escrito se queda |
+| Envío rápido | Toqué Guardar 5 veces seguidas | ✅ Solo se creó un pago ("Copias del parcial") |
+| Reinicio | Cerré y abrí la app | ✅ Los gastos y el anillo siguen igual; los pagos pendientes quedan vacíos (es lo esperado) |
+
+Tambien hay pruebas automaticas en `test/pagos_test.dart` (validadores y regla de duplicados). Se corren con `flutter test`.
+
+## Capturas del taller de continuación
+
+| Campos vacíos | Texto corto y reglas | Guardando |
+|---|---|---|
+| ![](capturas/taller2/1_campos_vacios.jpg) | ![](capturas/taller2/2_texto_corto_y_reglas.jpg) | ![](capturas/taller2/3_guardando.jpg) |
+
+| Guardado correcto | Error duplicado | Después de reiniciar |
+|---|---|---|
+| ![](capturas/taller2/4_guardado_correcto.jpg) | ![](capturas/taller2/5_error_duplicado.jpg) | ![](capturas/taller2/7_reinicio.jpg) |
+
+## Uso de IA en este taller
+
+Use Claude otra vez. Me ayudó a escoger la función de pagos pendientes, a escribir el modelo, el servicio, la pantalla y las validaciones con `form_field_validator`, y a probar los casos. En las pruebas encontramos un error: `RequiredValidator` se rompe cuando la lista de categorias manda `null`, por eso hice la función `validarCategoriaPago` que le pasa `''`. Revisé y probé todo el código y lo puedo explicar.
