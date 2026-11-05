@@ -8,6 +8,7 @@ import '../widgets/encabezado_app.dart';
 import '../widgets/gasto_card.dart';
 import '../widgets/lista_vacia.dart';
 import 'agregar_gasto_screen.dart';
+import 'pagos_pendientes_screen.dart';
 
 // Pantalla principal. Es StatefulWidget porque la lista, el filtro
 // y el presupuesto cambian mientras se usa la app.
@@ -169,6 +170,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     backgroundColor: Colors.teal,
                     foregroundColor: Colors.white,
                   ),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PagosPendientesScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.event, color: Colors.orange),
+                  label: const Text('Pagos pendientes'),
                 ),
                 const SizedBox(height: 16),
                 _resumenCategorias(),
