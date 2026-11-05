@@ -48,8 +48,8 @@ final valorPagoValidator = MultiValidator([
 final categoriaPagoValidator = RequiredValidator(errorText: 'Escoge una categoria.');
 
 // Regla propia del dominio: el valor tiene que ser mayor a 0
-// y no mas de 5 millones (un estudiante no deberia tener pagos tan altos)
 String? validarValorPago(String? texto) {
+  // primero reviso con los validadores de la libreria
   final String? error = valorPagoValidator(texto);
   if (error != null) {
     return error;
@@ -58,9 +58,6 @@ String? validarValorPago(String? texto) {
   final double? valor = double.tryParse(texto!.replaceAll('.', ''));
   if (valor == null || valor <= 0) {
     return 'El valor debe ser mayor a 0.';
-  }
-  if (valor > 5000000) {
-    return 'El valor no puede pasar de \$5.000.000.';
   }
   return null;
 }
